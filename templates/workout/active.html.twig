@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello WorkoutController!{% endblock %}
+
+{% block body %}
+    <h1>Workout {{ workout.createdAt.format('d-m-Y') }}</h1>
+    <form action="{{ path('app_workout_active_add', {'workoutId': workout.id}) }}" method="post">
+        <table>
+            <thead>
+                <th>Exercise</th>
+                <th>Sets</th>
+                <th>Reps</th>
+                <th>Weight</th>
+                <th>Duration</th>
+                <th></th>
+            </thead>
+            <tbody>
+                {% for history in workout.workoutHistories %}
+                    <tr>
+                        <td>{{ history.exercise.name }}</td>
+                        <td>{{ history.sets }}</td>
+                        <td>{{ history.reps }}</td>
+                        <td>{{ history.weight }}{{ history.duration is not null ? 'kg' : '' }}</td>
+                        <td>{{ history.duration }} {{ history.duration is not null ? 'seconds' : '' }}</td>
+                        <td></td>
+                    </tr>
+                {% endfor %}
+            <tr>
+                <td><input name="exercise" placeholder="bicep curl..." required></td>
+                <td><input name="sets" type="number" value="1" required></td>
+                <td><input name="reps" type="number" value="1" required></td>
+                <td><input name="weight" type="number">kg</td>
+                <td><input name="duration" type="number"> seconds</td>
+                <td><button type="submit" name="action" value="add">add</button></td>
+            </tr>
+            </tbody>
+        </table>
+    </form>
+    <form action="{{ path('app_workout_stop', {'workoutId': workout.id}) }}" method="post">
+        <button type="submit">end workout</button>
+    </form>
+
+{% endblock %}
