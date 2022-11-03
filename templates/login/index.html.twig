@@ -8,14 +8,18 @@
     {% endif %}
 
     <form action="{{ path('app_login') }}" method="post">
+        <h1>Welcome!</h1>
+        <p>To make use of this app please log in, or <a href="{{ path('app_register') }}">register here</a>.</p>
         <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+        <div class="mb-3">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="_username" class="form-control" value="{{ last_username }}"/>
+        </div>
+        <div class="mb-3">
+            <label for="password">Password:</label>
+            <input type="password" id="password" class="form-control" name="_password"/>
+        </div>
 
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="_username" value="{{ last_username }}"/>
-
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="_password"/>
-
-        <button type="submit">login</button>
+        <button class="btn btn-primary" type="submit">login</button>
     </form>
 {% endblock %}

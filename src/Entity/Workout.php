@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\WorkoutRepository;
+use DateInterval;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -119,5 +120,10 @@ class Workout
         }
 
         return $this;
+    }
+
+    public function getDuration() : ?DateInterval {
+        return $this->getEndedAt()?->diff($this->getCreatedAt());
+
     }
 }

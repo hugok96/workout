@@ -3,5 +3,65 @@
 {% block title %}Workouts@home{% endblock %}
 
 {% block body %}
-home
+    <div class="d-flex">
+        <h1 class="flex-grow-1">Workouts</h1>
+        <div>
+            <a class="btn btn-primary" href="{{ path('app_workout_start') }}">start workout</a>
+        </div>
+    </div>
+    <table class="table table-responsive">
+        <thead>
+            <tr>
+                <th>Started at</th>
+                <th>Exercises done</th>
+                <th>Duration</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for workout in paginator %}
+                <tr>
+                    <td>
+                        <a href="{{ path('app_workout_finished', {'workoutId': workout.id}) }}">
+                            {{ workout.createdAt.format('d-m-Y H:i') }}
+                        </a>
+                    </td>
+                    <td>{{ workout.workoutHistories.count }}</td>
+                    <td>{{ workout.duration.format('%Hh%Im') ?? 'still running' }}</td>
+                    <td>
+                        {% if workout.duration is null %}
+                            <form action="{{ path('app_workout_stop', {'workoutId': workout.id}) }}" method="post">
+                                <button class="btn btn-warning" type="submit">stop</button>
+                            </form>
+                        {% else %}
+                            <form action="{{ path('app_workout_delete', {'workoutId': workout.id}) }}" onsubmit="!!confirm('Are you sure you want to delete this workout?')" method="post">
+                                <button class="btn btn-danger" type="submit">delete</button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="4" class="text-center">
+                        no workouts found
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {{ knp_pagination_render(paginator) }}
+
+    <h1>Stats</h1>
+    <table>
+        <tbody>
+            <tr>
+                <th>Workouts had:</th>
+                <td>{{ paginator.count }}</td>
+            </tr>
+            <tr>
+                <th>Total time spent:</th>
+                <td>{{ totalTime }}</td>
+            </tr>
+        </tbody>
+    </table>
 {% endblock %}

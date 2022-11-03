@@ -24,32 +24,14 @@
                         <td>{{ history.reps }}</td>
                         <td>{{ history.weight }}{{ history.weight is not null ? 'kg' : '' }}</td>
                         <td>{{ history.duration ?? '-' }} {{ history.duration is not null ? 'seconds' : '' }}</td>
-                        <td></td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">no exercises found</td>
                     </tr>
                 {% endfor %}
-            <tr>
-                <td><input class="form-control" name="exercise" placeholder="bicep curl..." required></td>
-                <td><input class="form-control" name="sets" type="number" value="1" required></td>
-                <td><input class="form-control" name="reps" type="number" value="1" required></td>
-                <td>
-                    <div class="d-flex flex-align-baseline">
-                        <input class="form-control" name="weight" type="number">
-                        <span>kg</span>
-                    </div>
-                </td>
-                <td>
-                    <div class="d-flex flex-align-baseline">
-                        <input class="form-control" name="duration" type="number">
-                        <span>&nbsp;seconds</span>
-                    </div>
-                </td>
-                <td><button class="btn btn-primary" type="submit" name="action" value="add">add</button></td>
-            </tr>
             </tbody>
         </table>
-    </form>
-    <form action="{{ path('app_workout_stop', {'workoutId': workout.id}) }}" method="post" class="d-flex flex-row-reverse">
-        <button class="btn btn-danger" type="submit">end workout</button>
     </form>
 
 {% endblock %}

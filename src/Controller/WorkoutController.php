@@ -33,16 +33,16 @@ class WorkoutController extends AbstractController
     }
 
     #[Route('/workout/active/{workoutId}', name: 'app_workout_active')]
-    public function active(int $workoutId, WorkoutRepository $wr, Security $security): Exception|Response
+    public function active(int $workoutId, WorkoutRepository $wr, Security $security): Response
     {
         $workout = $wr->findForUser($workoutId, $security->getUser());
 
         if(false === $workout instanceof Workout) {
-            return $this->createNotFoundException("Workout not found");
+            throw $this->createNotFoundException("Workout not found");
         }
 
         if(null !== $workout->getEndedAt()) {
-            return $this->createAccessDeniedException("Workout has already ended");
+            throw $this->createNotFoundException("Workout has already ended");
         }
 
         return $this->render('workout/active.html.twig', [
@@ -50,17 +50,35 @@ class WorkoutController extends AbstractController
         ]);
     }
 
-    #[Route('/workout/active/{workoutId}/add', name: 'app_workout_active_add', methods: ["POST"])]
-    public function add(int $workoutId, WorkoutRepository $wr, WorkoutHistoryRepository $whr, ExerciseRepository $er, Security $security, Request $request): Exception|Response
+    #[Route('/workout/finished/{workoutId}', name: 'app_workout_finished')]
+    public function finished(int $workoutId, WorkoutRepository $wr, Security $security): Response
     {
         $workout = $wr->findForUser($workoutId, $security->getUser());
 
         if(false === $workout instanceof Workout) {
-            return $this->createNotFoundException("Workout not found");
+            throw $this->createNotFoundException("Workout not found");
+        }
+
+        if(null === $workout->getEndedAt()) {
+            return $this->redirectToRoute('app_workout_active', ['workoutId' => $workoutId]);
+        }
+
+        return $this->render('workout/finished.html.twig', [
+            'workout' => $workout
+        ]);
+    }
+
+    #[Route('/workout/active/{workoutId}/add', name: 'app_workout_active_add', methods: ["POST"])]
+    public function add(int $workoutId, WorkoutRepository $wr, WorkoutHistoryRepository $whr, ExerciseRepository $er, Security $security, Request $request): Response
+    {
+        $workout = $wr->findForUser($workoutId, $security->getUser());
+
+        if(false === $workout instanceof Workout) {
+            throw $this->createNotFoundException("Workout not found");
         }
 
         if(null !== $workout->getEndedAt()) {
-            return $this->createAccessDeniedException("Workout has already ended");
+            throw $this->createNotFoundException("Workout has already ended");
         }
 
         $exercise = $er->findOrCreateForUser($request->request->get('exercise'), $security->getUser());
@@ -79,20 +97,38 @@ class WorkoutController extends AbstractController
     }
 
     #[Route('/workout/stop/{workoutId}', name: 'app_workout_stop', methods: ['POST'])]
-    public function stop(int $workoutId, WorkoutRepository $wr, Security $security): Exception|Response
+    public function stop(int $workoutId, WorkoutRepository $wr, Security $security): Response
     {
         $workout = $wr->findForUser($workoutId, $security->getUser());
 
         if(false === $workout instanceof Workout) {
-            return $this->createNotFoundException("Workout not found");
+            throw $this->createNotFoundException("Workout not found");
         }
 
         if(null !== $workout->getEndedAt()) {
-            return $this->createAccessDeniedException("Workout has already ended");
+            throw $this->createNotFoundException("Workout has already ended");
         }
 
         $workout->setEndedAt(new \DateTime());
         $wr->save($workout, true);
+
+        return $this->redirectToRoute('app_home');
+    }
+
+    #[Route('/workout/delete/{workoutId}', name: 'app_workout_delete', methods: ['POST'])]
+    public function delete(int $workoutId, WorkoutRepository $wr, Security $security): Response
+    {
+        $workout = $wr->findForUser($workoutId, $security->getUser());
+
+        if(false === $workout instanceof Workout) {
+            throw $this->createNotFoundException("Workout not found");
+        }
+
+        if(null === $workout->getEndedAt()) {
+            throw $this->createNotFoundException("Workout not not yet ended");
+        }
+
+        $wr->remove($workout, true);
 
         return $this->redirectToRoute('app_home');
     }
